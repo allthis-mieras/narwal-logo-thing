@@ -21,7 +21,7 @@ import LogoClipDefs from "../components/LogoClipDefs.astro";
             aria-hidden="true"
           >
             <source
-              src="https://avtshare01.rz.tu-ilmenau.de/avt-vqdb-uhd-1/test_3/segments/cutting_orange_tuil_8s_14930kbps_1080p_59.94fps_hevc.mp4"
+              src="https://cdn.cosmos.so/7e7d92b0-8124-4f3d-b0c6-ea08668c3824.mp4"
               type="video/mp4"
             />
           </video>
@@ -54,24 +54,19 @@ import LogoClipDefs from "../components/LogoClipDefs.astro";
   const cta = document.querySelector<HTMLElement>("[data-cta]");
   const video = document.querySelector<HTMLVideoElement>(".video");
 
-  // Scroll-progress 0..1 voor scale/rotatie (clipPath transform moet SVG-attribuut zijn, niet CSS)
+  // Scroll-progress 0..1 voor scale (clipPath transform)
   let clipProgress = 0;
-  let ctaRevealed = false;
   const SCALE_START = 0.9;
   const SCALE_END = 55;
-  const ROTATE_START = 10;
-  const ROTATE_END = 0;
 
   function updateClipTransform() {
     if (!logoClip) return;
     const cx = window.innerWidth / 2;
     const cy = window.innerHeight / 2;
     const scale = SCALE_START + clipProgress * (SCALE_END - SCALE_START);
-    const angle = ROTATE_START + clipProgress * (ROTATE_END - ROTATE_START);
-    // Volgorde: schaal rond (128,128), roteer rond (128,128), verplaats naar viewport-midden
     const t = `translate(${cx - 128}, ${
       cy - 128
-    }) rotate(${angle}, 128, 128) translate(128, 128) scale(${scale}) translate(-128, -128)`;
+    }) translate(128, 128) scale(${scale}) translate(-128, -128)`;
     logoClip.setAttribute("transform", t);
   }
 

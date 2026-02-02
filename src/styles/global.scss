@@ -1,8 +1,7 @@
-@import "tailwindcss";
+@use "tailwindcss";
+@use "colors";
+@use "base";
+@use "typography";
+@use "layout";
+@use "buttons";
 @source "../**/*.astro";
-
-@import "colors";
-@import "base";
-@import "typography";
-@import "layout";
-@import "buttons";
