@@ -1,0 +1,118 @@
+// CTA-button: roterende conic-gradient rand (naar React-voorbeeld)
+@property --animate-duration {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@property --Color {
+  syntax: "<color>";
+  initial-value: #4afd71;
+  inherits: false;
+}
+
+@keyframes rotate {
+  0% {
+    --animate-duration: 0deg;
+    --Color: #4afd71;
+  }
+
+  100% {
+    --animate-duration: 360deg;
+    --Color: #4afd71;
+  }
+}
+
+.btn::after,
+.btn::before {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: calc(100px + 1.5px);
+  background-size: 100% 100%;
+  background-position: 0 0;
+  background-image: conic-gradient(from var(--animate-duration) at 50% 50%,
+      #ffff 0%,
+      #ffff 20%,
+      var(--Color) 50%,
+      var(--Color) 66%,
+      #ffff 100%);
+  animation: rotate 3s infinite linear;
+}
+
+.btn::before {
+  filter: blur(20px);
+}
+
+// Border-gradient: conic gradient als rand, geanimeerd via @property
+@property --gradient-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes gradient-rotate {
+  to {
+    --gradient-angle: 360deg;
+  }
+}
+
+.border-gradient {
+  --c: #171717;
+  --p: 10%;
+  background:
+    linear-gradient(var(--c), var(--c)) padding-box,
+    conic-gradient(from var(--gradient-angle),
+      transparent,
+      white var(--p),
+      transparent calc(var(--p) * 2)) border-box;
+  border: 1px solid transparent;
+  animation: gradient-rotate 3s linear infinite;
+}
+
+// Gebruik border-gradient i.p.v. pseudo-element gradient
+.btn.border-gradient::before,
+.btn.border-gradient::after {
+  display: none;
+}
+
+// CTA: fixed onderaan; gecentreerd t.o.v. viewport (50vw + translateX(-50%))
+// Layout-fallback zodat button werkt ook als Tailwind niet meepakt
+.cta {
+  position: fixed;
+  left: 50vw;
+  bottom: 2rem;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 100px;
+  padding: 1px;
+  font-weight: 650;
+  font-size: clamp(22px, 3.2vw, 44px);
+  text-decoration: none;
+  opacity: 0.5;
+  visibility: visible;
+  pointer-events: none;
+  z-index: 100;
+  cursor: pointer;
+}
+
+// Inner span: fallback als Tailwind classes niet worden toegepast
+.cta .btnSpan {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: 1rem 2rem;
+  border-radius: 100px;
+  // background-color: #000;
+  color: #fff;
+  font-size: 1rem;
+  backdrop-filter: blur(40px);
+}

@@ -1,0 +1,134 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import CtaButton from "../components/ui/CtaButton.astro";
+import LogoClipDefs from "../components/LogoClipDefs.astro";
+---
+
+<BaseLayout title="Robotanics">
+  <main class="page">
+    <section class="stage" aria-label="Scroll zoom mask">
+      <div class="sticky">
+        <LogoClipDefs />
+
+        <div class="frame">
+          <video
+            class="video"
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="auto"
+            aria-hidden="true"
+          >
+            <source
+              src="https://avtshare01.rz.tu-ilmenau.de/avt-vqdb-uhd-1/test_3/segments/cutting_orange_tuil_8s_14930kbps_1080p_59.94fps_hevc.mp4"
+              type="video/mp4"
+            />
+          </video>
+
+          <div class="mask-layer" aria-hidden="true"></div>
+        </div>
+      </div>
+    </section>
+    <CtaButton href="#" label="Contact" />
+  </main>
+</BaseLayout>
+
+<script>
+  import gsap from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+  import Lenis from "lenis";
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const lenis = new Lenis({ lerp: 0.08, smoothWheel: true });
+  lenis.on("scroll", ScrollTrigger.update);
+  gsap.ticker.add((t: number) => lenis.raf(t * 1000));
+  gsap.ticker.lagSmoothing(0);
+
+  // ScrollTrigger opnieuw berekenen na layout (nodig o.a. met Lenis)
+  window.addEventListener("load", () => ScrollTrigger.refresh());
+  requestAnimationFrame(() => setTimeout(ScrollTrigger.refresh, 100));
+
+  const logoClip = document.querySelector<SVGClipPathElement>("#logoClip");
+  const cta = document.querySelector<HTMLElement>("[data-cta]");
+  const video = document.querySelector<HTMLVideoElement>(".video");
+
+  // Scroll-progress 0..1 voor scale/rotatie (clipPath transform moet SVG-attribuut zijn, niet CSS)
+  let clipProgress = 0;
+  let ctaRevealed = false;
+  const SCALE_START = 0.9;
+  const SCALE_END = 55;
+  const ROTATE_START = 10;
+  const ROTATE_END = 0;
+
+  function updateClipTransform() {
+    if (!logoClip) return;
+    const cx = window.innerWidth / 2;
+    const cy = window.innerHeight / 2;
+    const scale = SCALE_START + clipProgress * (SCALE_END - SCALE_START);
+    const angle = ROTATE_START + clipProgress * (ROTATE_END - ROTATE_START);
+    // Volgorde: schaal rond (128,128), roteer rond (128,128), verplaats naar viewport-midden
+    const t = `translate(${cx - 128}, ${
+      cy - 128
+    }) rotate(${angle}, 128, 128) translate(128, 128) scale(${scale}) translate(-128, -128)`;
+    logoClip.setAttribute("transform", t);
+  }
+
+  updateClipTransform();
+  window.addEventListener("resize", updateClipTransform);
+
+  ScrollTrigger.create({
+    trigger: ".stage",
+    start: "top top",
+    end: "top+=300% top",
+    scrub: true,
+    onUpdate: (self) => {
+      clipProgress = self.progress;
+      updateClipTransform();
+    },
+  });
+
+  if (cta) {
+    // Start onder viewport (buiten canvas), dan bij trigger van onder in + pop
+    gsap.set(cta, {
+      opacity: 0,
+      visibility: "visible",
+      bottom: "2rem",
+
+      xPercent: -50,
+      y: "calc(100vh + 100%)",
+    });
+
+    ScrollTrigger.create({
+      trigger: ".stage",
+      start: "80% bottom",
+      markers: false, // GSAP ScrollTrigger debug
+      onEnter: () => {
+        cta.style.pointerEvents = "auto";
+        gsap.to(cta, {
+          y: 0,
+          opacity: 1,
+          duration: 0.6,
+          ease: "back.out(1.15)",
+        });
+      },
+      onLeaveBack: () => {
+        cta.style.pointerEvents = "none";
+        gsap.to(cta, {
+          y: "calc(100vh + 100%)",
+          opacity: 0,
+          duration: 0.35,
+          ease: "power2.in",
+        });
+      },
+    });
+  }
+
+  if (video) {
+    video.addEventListener("loadeddata", () => {
+      const p = video.play();
+      if (p?.catch) p.catch(() => {});
+    });
+  }
+</script>

@@ -1,0 +1,29 @@
+---
+interface Props {
+  href?: string;
+  label?: string;
+  class?: string;
+}
+
+const { href = "#", label = "Contact", class: className = "" } = Astro.props;
+---
+
+<a
+  class:list={[
+    "cta",
+    "btn",
+    "border-gradient",
+    "relative z-50 flex cursor-pointer items-center justify-center overflow-hidden rounded-[100px] border-none p-[1px]",
+    className,
+  ]}
+  href={href}
+  data-cta
+  aria-label={label}
+  role={href === "#" ? "button" : undefined}
+>
+  <span
+    class="btnSpan relative z-[1] w-full rounded-[100px] bg-black px-8 py-4 text-base text-white backdrop-blur-[40px]"
+  >
+    {label}
+  </span>
+</a>
