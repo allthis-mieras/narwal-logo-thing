@@ -1,15 +1,12 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import CtaButton from "../components/ui/CtaButton.astro";
-import LogoClipDefs from "../components/LogoClipDefs.astro";
 ---
 
 <BaseLayout title="Robotanics">
   <main class="page">
     <section class="stage" aria-label="Scroll zoom mask">
       <div class="sticky">
-        <LogoClipDefs />
-
         <div class="frame">
           <video
             class="video"
@@ -25,8 +22,6 @@ import LogoClipDefs from "../components/LogoClipDefs.astro";
               type="video/mp4"
             />
           </video>
-
-          <div class="mask-layer" aria-hidden="true"></div>
         </div>
       </div>
     </section>
@@ -50,28 +45,21 @@ import LogoClipDefs from "../components/LogoClipDefs.astro";
   window.addEventListener("load", () => ScrollTrigger.refresh());
   requestAnimationFrame(() => setTimeout(ScrollTrigger.refresh, 100));
 
-  const logoClip = document.querySelector<SVGClipPathElement>("#logoClip");
   const cta = document.querySelector<HTMLElement>("[data-cta]");
   const video = document.querySelector<HTMLVideoElement>(".video");
+  const frame = document.querySelector<HTMLElement>(".frame");
 
-  // Scroll-progress 0..1 voor scale (clipPath transform)
-  let clipProgress = 0;
-  const SCALE_START = 0.9;
-  const SCALE_END = 55;
+  let maskProgress = 0;
+  const MASK_START = 32;
+  const MASK_END = 8000;
 
-  function updateClipTransform() {
-    if (!logoClip) return;
-    const cx = window.innerWidth / 2;
-    const cy = window.innerHeight / 2;
-    const scale = SCALE_START + clipProgress * (SCALE_END - SCALE_START);
-    const t = `translate(${cx - 128}, ${
-      cy - 128
-    }) translate(128, 128) scale(${scale}) translate(-128, -128)`;
-    logoClip.setAttribute("transform", t);
+  function updateMaskSize() {
+    if (!frame) return;
+    const size = MASK_START + maskProgress * (MASK_END - MASK_START);
+    frame.style.setProperty("--logo-mask-size", `${size}vw`);
   }
 
-  updateClipTransform();
-  window.addEventListener("resize", updateClipTransform);
+  updateMaskSize();
 
   ScrollTrigger.create({
     trigger: ".stage",
@@ -79,8 +67,8 @@ import LogoClipDefs from "../components/LogoClipDefs.astro";
     end: "top+=300% top",
     scrub: true,
     onUpdate: (self) => {
-      clipProgress = self.progress;
-      updateClipTransform();
+      maskProgress = self.progress;
+      updateMaskSize();
     },
   });
 
@@ -90,7 +78,6 @@ import LogoClipDefs from "../components/LogoClipDefs.astro";
       opacity: 0,
       visibility: "visible",
       bottom: "2rem",
-
       xPercent: -50,
       y: "calc(100vh + 100%)",
     });
